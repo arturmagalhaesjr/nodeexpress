@@ -44,6 +44,10 @@ app.get('/contact', (req, res) => {
   res.render('contact.html');
 });
 
+app.get('/artur', function (req, res) {
+  res.render('artur.html');
+});
+
 app.post('/send', (req, res) => {
   var email = 'artur.nzk@gmail.com';
   const transporter = nodemailer.createTransport({
