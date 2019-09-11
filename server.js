@@ -61,7 +61,6 @@ app.post('/send', (req, res) => {
     }
     res.send('ok');
   });
-
 });
 
 app.get('/product/:id', (req, res) => {
@@ -77,7 +76,12 @@ app.get('/api/products', (req, res) => {
 });
 
 app.get('/api/product/:id', (req, res) => {
-  res.send('Cade meu produto ????');
+  const product = listProducts.find((item) => {
+    return item.id == req.params.id
+  })
+  res.send(product);
+
+
 });
 
 app.listen(3000, () => {
