@@ -5,18 +5,7 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 
 
-let listProducts = [
-  {
-    id: 1,
-    name: 'Product 1',
-    price: 10
-  },
-  {
-    id: 2,
-    name: 'Product 2',
-    price: 100
-  }
-];
+let listProducts = require('./data/products.json');
 
 
 nunjucks.configure('views', {
@@ -80,6 +69,15 @@ app.get('/product/:id', (req, res) => {
     return item.id == req.params.id
   })
   res.render('product.html', {product: product});
+});
+
+// APIs
+app.get('/api/products', (req, res) => {
+  res.send(listProducts);
+});
+
+app.get('/api/product/:id', (req, res) => {
+  res.send('Cade meu produto ????');
 });
 
 app.listen(3000, () => {
