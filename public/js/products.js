@@ -14,7 +14,7 @@ function addToCart (product) {
     product.quantity = 1;
     cart.push(product);
   }
-
+  toastr["success"](product.name + " adicionado ao carrinho");
   sessionStorage.setItem("cart", JSON.stringify(cart));
   showCartItems();
 }

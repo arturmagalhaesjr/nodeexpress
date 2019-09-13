@@ -8,10 +8,12 @@ const nodemailer = require('nodemailer');
 let listProducts = require('./data/products.json');
 
 
-nunjucks.configure('views', {
+let env = nunjucks.configure('views', {
     autoescape: true,
     express: app
 });
+
+require('useful-nunjucks-filters')(env);
 
 
 app.use(bodyParser.json());       // to support JSON-encoded bodies
@@ -31,6 +33,10 @@ app.get('/products', (req, res) => {
 
 app.get('/contact', (req, res) => {
   res.render('contact.html');
+});
+
+app.get('/cart', (req, res) => {
+  res.render('cart.html');
 });
 
 app.get('/artur', function (req, res) {
