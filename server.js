@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const mongoose = require("mongoose");
 const ProductsSchema = require('./schemas/Products');
+const ClientsSchema = require('./schemas/Clients');
+const md5 = require('md5');
 
 const MONGODB_URL = 'mongodb://@localhost:27017/store';
 
@@ -16,6 +18,7 @@ let env = nunjucks.configure('views', {
 require('useful-nunjucks-filters')(env);
 
 const Products = mongoose.model('Product', ProductsSchema);
+const Clients = mongoose.model('Clients', ClientsSchema);
 
 mongoose.connect(MONGODB_URL, {useNewUrlParser: true}, err => {
     if (err) {
@@ -52,6 +55,10 @@ app.get('/contact', (req, res) => {
   res.render('contact.html');
 });
 
+app.get('/register', (req, res) => {
+  res.render('register.html');
+});
+
 app.get('/cart', (req, res) => {
   res.render('cart.html');
 });
@@ -84,6 +91,16 @@ app.post('/send', (req, res) => {
     }
     res.send('ok');
   });
+});
+
+app.post('/client', (req, res) => {
+  var client = new Clients(req.body);
+  client.password = md5(client.password);
+  client.save((err, client) => {
+    console.info(client.name + ' salvo');
+    res.send('ok');
+  })
+
 });
 
 app.get('/product/:id', (req, res) => {
