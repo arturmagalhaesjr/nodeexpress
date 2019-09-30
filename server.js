@@ -3,10 +3,10 @@ const app = express();
 const nunjucks = require('nunjucks');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
+const mongoose = require("mongoose");
+const ProductsSchema = require('./schemas/Products');
 
-
-let listProducts = require('./data/products.json');
-
+const MONGODB_URL = 'mongodb://@localhost:27017/store';
 
 let env = nunjucks.configure('views', {
     autoescape: true,
@@ -15,6 +15,21 @@ let env = nunjucks.configure('views', {
 
 require('useful-nunjucks-filters')(env);
 
+const Products = mongoose.model('Product', ProductsSchema);
+
+mongoose.connect(MONGODB_URL, {useNewUrlParser: true}, err => {
+    if (err) {
+        console.error('[SERVER_ERROR] MongoDB Connection:', err);
+        process.exit(1);
+    }
+    console.info('Mongo connected');
+
+
+    app.listen(3000, () => {
+      console.log('Escutando na porta 3000');
+    });
+
+});
 
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -28,7 +43,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/products', (req, res) => {
-  res.render('products.html', {products: listProducts});
+  Products.find((err, obj) => {
+      res.render('products.html', {products: obj});
+  });
 });
 
 app.get('/contact', (req, res) => {
@@ -70,10 +87,14 @@ app.post('/send', (req, res) => {
 });
 
 app.get('/product/:id', (req, res) => {
-  const product = listProducts.find((item) => {
-    return item.id == req.params.id
-  })
-  res.render('product.html', {product: product});
+  Products.find({"_id": req.params.id }, (err, obj) => {
+      if (err) {
+        res.render('notfound.html');
+      } else {
+        const product = obj[0];
+        res.render('product.html', {product: product});
+      }
+  });
 });
 
 // APIs
@@ -86,10 +107,4 @@ app.get('/api/product/:id', (req, res) => {
     return item.id == req.params.id
   })
   res.send(product);
-
-
-});
-
-app.listen(3000, () => {
-  console.log('Escutando na porta 3000');
 });
