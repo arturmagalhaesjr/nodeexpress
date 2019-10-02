@@ -21,7 +21,7 @@ function addToCart (product) {
 
 $(document).ready(function () {
   $('#addProduct').click(function () {
-    var id = location.href.match(/\d{1,4}$/g);
+    var id = $('#productId').val();
     $.get('/api/product/' + id, function (product) {
       addToCart(product);
     })

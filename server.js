@@ -51,6 +51,34 @@ app.get('/products', (req, res) => {
   });
 });
 
+
+app.delete('/admin/product/:id', (req, res) => {
+  Products.findOneAndRemove({_id: req.params.id}, (err, obj) => {
+    if(err) {
+      res.send('error');
+    }
+    res.send('ok');
+  });
+});
+
+app.get('/admin/list-products', (req, res) => {
+  Products.find((err, obj) => {
+    obj = obj.sort((a,b) => {
+      if (a.name > b.name) {
+       return 1;
+      }
+      if (b.name > a.name) {
+           return -1;
+      }
+      return 0;
+    });
+      res.render('admin/list-products.html', {products: obj});
+  });
+});
+app.get('/admin/products', (req, res) => {
+  res.render('admin/products.html');
+});
+
 app.get('/contact', (req, res) => {
   res.render('contact.html');
 });
@@ -100,8 +128,24 @@ app.post('/client', (req, res) => {
     console.info(client.name + ' salvo');
     res.send('ok');
   })
-
 });
+
+app.post('/admin/products', (req, res) => {
+  var newProduct = new Products(req.body);
+  newProduct.save((err, newProduct) => {
+    console.info(newProduct.name + ' salvo');
+    res.send('ok');
+  })
+});
+app.post('/login', (req, res) => {
+  Clients.find({'email': req.body.email, 'password': md5(req.body.password)}, (err, obj) => {
+    if (err || obj.length === 0) {
+      res.send('error');
+    } else {
+      res.send('ok');
+    }
+  })
+})
 
 app.get('/product/:id', (req, res) => {
   Products.find({"_id": req.params.id }, (err, obj) => {
@@ -120,8 +164,12 @@ app.get('/api/products', (req, res) => {
 });
 
 app.get('/api/product/:id', (req, res) => {
-  const product = listProducts.find((item) => {
-    return item.id == req.params.id
-  })
-  res.send(product);
+  Products.find({"_id": req.params.id }, (err, obj) => {
+      if (err) {
+        res.send(null);
+      } else {
+        const product = obj[0];
+        res.send(product);
+      }
+  });
 });

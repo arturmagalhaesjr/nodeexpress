@@ -84,4 +84,15 @@ function showCart () {
 }
 $(document).ready(function () {
   showCart();
+  $('form').submit(function (event) {
+    event.preventDefault();
+    $.post("/login", {email: $('#email').val(), password: $('#password').val()}, function (res) {
+      if (res === 'ok') {
+        console.info('Logado');
+        toastr["success"]("Login efetuado...");
+      } else {
+        toastr["error"]("Senha inválida");
+      }
+    })
+  });
 })
