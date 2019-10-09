@@ -16,6 +16,8 @@ let env = nunjucks.configure('views', {
     express: app
 });
 
+app.set('engine', env);
+
 require('useful-nunjucks-filters')(env);
 
 const Products = mongoose.model('Product', ProductsSchema);
@@ -43,11 +45,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 
 app.use(express.static('public'));
-app.get('/', (req, res) => {
-  res.render('index.html');
-});
 
-app.get('/products', (req, res) => {
+app.use((req, res, next) => {
+  const engine = res.app.get('engine');
   Categories.aggregate([{
     $lookup: {
         from: "products", // collection name in db
@@ -56,8 +56,19 @@ app.get('/products', (req, res) => {
         as: "products"
     }
   }]).sort('name').exec((err, obj) => {
-      res.render('products.html', {categories: obj});
+    engine.addGlobal('categories', obj);
+    next();
   });
+});
+
+
+app.get('/', (req, res) => {
+  res.render('index.html');
+});
+
+
+app.get('/products', (req, res) => {
+    res.render('products.html');
 });
 
 
